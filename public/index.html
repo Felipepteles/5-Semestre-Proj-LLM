@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetTriage | Actec Infra</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1d4ed8;
+            --primary-hover: #1e40af;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+        }
+
+        .header {
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            resize: vertical;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: #fcfcfc;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.2);
+            background-color: #fff;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background-color: var(--primary);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .result-section {
+            margin-top: 30px;
+        }
+
+        .result-section h2 {
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+
+        pre {
+            background-color: #0f172a; 
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-size: 15px;
+            line-height: 1.6;
+            overflow-x: auto;
+            border: 1px solid #1e293b;
+        }
+
+        .loading {
+            color: #cbd5e1;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                    <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                    <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                </svg>
+                NetTriage 
+            </h1>
+            <p class="subtitle">Assistente de Diagnóstico Rápido para Redes e CFTV. Descreva o sintoma abaixo para obter um checklist de triagem.</p>
+        </div>
+
+        <div class="input-group">
+            <label for="prompt">Relato de Falha do Equipamento</label>
+            <textarea id="prompt" placeholder="Ex.: Cliente X, a câmera X, do local X parou de transmitir imagens..."></textarea>
+        </div>
+        
+        <button id="btnEnviar" onclick="enviar()">Solicitar Diagnóstico</button>
+        
+        <div class="result-section">
+            <h2>Resultado da Triagem</h2>
+            <pre id="resposta">Aguardando relato do técnico de campo...</pre>
+        </div>
+    </div>
+
+    <script>
+        async function enviar() {
+            const promptInput = document.getElementById("prompt");
+            const btnEnviar = document.getElementById("btnEnviar");
+            const output = document.getElementById("resposta");
+            const prompt = promptInput.value;
+
+            if (!prompt.trim()) {
+                alert("Por favor, descreva o problema antes de solicitar o diagnóstico.");
+                return;
+            }
+            
+            btnEnviar.disabled = true;
+            btnEnviar.textContent = "Processando...";
+            output.innerHTML = "<span class='loading'>Analisando a infraestrutura e consultando a base de dados...</span>";
+            
+            try {
+                const response = await fetch("/api/llm", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    output.textContent = data.erro || "Erro desconhecido.";
+                } else {
+                    output.textContent = data.resposta;
+                }
+                
+            } catch (error) {
+                output.textContent = "Erro crítico ao conectar com o servidor local. Verifique se o back-end está rodando.";
+            } finally {
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = "Solicitar Diagnóstico";
+            }
+        }
+    </script>
+</body>
+</html>
