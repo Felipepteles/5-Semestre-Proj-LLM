@@ -7,6 +7,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Biblioteca que transforma o texto da IA em HTML formatado -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
     <style>
         :root {
             --primary: #1d4ed8;
@@ -115,10 +119,6 @@
             background-color: var(--primary-hover);
         }
 
-        button:active {
-            transform: translateY(1px);
-        }
-
         button:disabled {
             background-color: #94a3b8;
             cursor: not-allowed;
@@ -134,20 +134,37 @@
             color: var(--text-main);
         }
 
-        pre {
-            background-color: #0f172a; 
-            color: #e2e8f0;
+        /* Estilos específicos para o texto formatado da IA */
+        .result-content {
+            background-color: #f8fafc;
+            color: #0f172a;
             padding: 20px;
             border-radius: 8px;
-            white-space: pre-wrap;
+            border: 1px solid var(--border);
             font-size: 15px;
             line-height: 1.6;
-            overflow-x: auto;
-            border: 1px solid #1e293b;
+        }
+
+        .result-content strong {
+            color: var(--primary);
+        }
+
+        .result-content ul, .result-content ol {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+
+        .result-content li {
+            margin-bottom: 8px;
+        }
+
+        .result-content p {
+            margin-bottom: 16px;
         }
 
         .loading {
-            color: #cbd5e1;
+            color: var(--text-muted);
             font-style: italic;
         }
     </style>
@@ -165,19 +182,19 @@
                 </svg>
                 NetTriage 
             </h1>
-            <p class="subtitle">Assistente de Diagnóstico Rápido para Redes e CFTV. Descreva o sintoma abaixo para obter um checklist de triagem.</p>
+            <p class="subtitle">Assistente de Diagnóstico Rápido para Redes e CFTV.</p>
         </div>
 
         <div class="input-group">
             <label for="prompt">Relato de Falha do Equipamento</label>
-            <textarea id="prompt" placeholder="Ex.: Cliente X, a câmera X, do local X parou de transmitir imagens..."></textarea>
+            <textarea id="prompt" placeholder="Ex.: O servidor X está travando..."></textarea>
         </div>
         
         <button id="btnEnviar" onclick="enviar()">Solicitar Diagnóstico</button>
         
         <div class="result-section">
             <h2>Resultado da Triagem</h2>
-            <pre id="resposta">Aguardando relato do técnico de campo...</pre>
+            <div id="resposta" class="result-content">Aguardando relato do técnico de campo...</div>
         </div>
     </div>
 
@@ -209,7 +226,7 @@
                 if (!response.ok) {
                     output.textContent = data.erro || "Erro desconhecido.";
                 } else {
-                    output.textContent = data.resposta;
+                    output.innerHTML = marked.parse(data.resposta);
                 }
                 
             } catch (error) {
