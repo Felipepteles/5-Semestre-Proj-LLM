@@ -25,49 +25,47 @@ app.post("/api/llm", async (req, res) => {
     try {
         const prompt = req.body.prompt;
 
-        if (!prompt || prompt.trim().length === 0) {
-            return res.status(400).json({ erro: "O campo prompt e obrigatorio." });
-        }
-
-        if (prompt.length > 2000) {
-            return res.status(400).json({ erro: "Limite: 2000 caracteres." });
-        }
-
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${API_KEY}`,
                 "Content-Type": "application/json",
                 "HTTP-Referer": "http://localhost:3000",
-                "X-OpenRouter-Title": "NetTriage - Atividade FIA ADS"
+                "X-OpenRouter-Title": "NetTriage"
             },
             body: JSON.stringify({
                 model: MODEL,
                 messages: [
                     {
                         role: "system",
-                        content: `Você é o Engenheiro Sênior de Infraestrutura e Redes. Sua função é receber relatos de técnicos de campo sobre falhas em CFTV, cabeamento estruturado, switches e roteadores, e devolver um plano de triagem absoluto e previsível.
-            
-REGRAS:
-1. Seja extremamente técnico e direto.
-2. Não invente equipamentos que não foram citados no relato.
-3. Você DEVE responder ESTRITAMENTE utilizando a estrutura e os títulos exatos abaixo:
+                        content: `Você é o Engenheiro Sênior de Infraestrutura e Redes. Sua função é receber relatos de técnicos de campo sobre falhas em CFTV (IP e Analógico), cabeamento estruturado, switches e roteadores, e devolver um plano de triagem absoluto, previsível e focado em ações físicas/manuais.
+
+DIRETRIZES TÉCNICAS CRICITAIS QUE VOCÊ DEVE SEGUIR:
+1. DIFERENCIAÇÃO DE CFTV:
+   - Se o relato citar Balun, DVR, cabo coaxial ou conectores BNC, trate estritamente como CFTV Analógico.
+   - Se o relato citar Switch PoE, NVR, patch cord RJ45, endereço IP ou ping, trate estritamente como CFTV IP. Não misture as tecnologias.
+2. FOCO EM CAMPO: Suas instruções devem focar no trabalho manual do técnico (medição de tensão com multímetro, crimpagem, troca de patch cord, verificação de LEDs de link, testes de continuidade).
+3. FIDELIDADE AO RELATO: Nunca invente equipamentos. Se o técnico mencionou apenas uma câmera e um switch, não cite roteadores ou NVRs no diagnóstico.
+
+REGRAS DE FORMATAÇÃO (ESTRITAS):
+1. Seja extremamente técnico, direto e use jargão profissional de telecomunicações.
+2. Você DEVE responder ESTRITAMENTE utilizando a estrutura e os títulos exatos abaixo, sem nenhuma alteração ou introdução:
 
 Diagnóstico Inicial:
-(Descreva em até 2 frases a causa raiz mais provável com base no relato do técnico).
+(Descreva em até 3 frases a causa raiz mais provável com base no relato do técnico, diferenciando claramente a tecnologia envolvida).
 
 Checklist de Ação:
-1. (Passo prático 1 - ex: teste físico, verificação de LED, comando, crimpagem).
-2. (Passo prático 2).
-3. (Passo prático 3).
-(Adicione mais passos apenas se for estritamente necessário).
+1. (Passo prático 1 - focado em teste físico, verificação de LED, comando ou crimpagem).
+2. (Passo prático 2 - focado em isolamento de portas ou cabos).
+3. (Passo prático 3 - teste com equipamento de medição ou substituição de insumo rápido).
+(Adicione mais passos apenas se for estritamente necessário para cobrir o escopo físico).
 
 Checklist de Ferramentas/Materiais:
-- (Ferramenta 1 necessária para esta triagem).
-- (Insumo 1, ex: RJ45, patch cord, etc).
+- (Ferramenta específica necessária para esta triagem, ex: Multímetro, Testador de Cabo, Alicate de Crimpagem).
+- (Insumo exato, ex: Conector RJ45, Conector BNC, Balun HD, Patch Cord Cat6).
 
 Quando Escalonar:
-(Descreva uma condição de falha onde o técnico deve parar de tentar resolver fisicamente e acionar a gerência/nível superior).`
+(Descreva a condição exata de falha de hardware interno ou infraestrutura pesada onde o técnico deve parar e acionar o Nível 2/Gerência).`
                     },
                     {
                         role: "user",
@@ -90,10 +88,6 @@ Quando Escalonar:
 
         const data = await response.json();
         const text = data.choices?.[0]?.message?.content;
-
-        if (!text) {
-            return res.status(502).json({ erro: "Resposta vazia ou inesperada." });
-        }
 
         res.json({ modelo: MODEL, resposta: text, uso: data.usage ?? null });
 

@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NetTriage | Actec Infra</title>
+    <title>NetTriage | Actec</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Biblioteca que transforma o texto da IA em HTML formatado -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <style>
@@ -45,7 +43,7 @@
             max-width: 800px;
             padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 6px -1px rgba(0.4, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             border: 1px solid var(--border);
         }
 
@@ -53,6 +51,8 @@
             margin-bottom: 30px;
             border-bottom: 2px solid var(--border);
             padding-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0.2, 0.2, 0.2, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
         }
 
         h1 {
@@ -93,6 +93,8 @@
             resize: vertical;
             transition: border-color 0.3s, box-shadow 0.3s;
             background-color: #fcfcfc;
+            box-shadow: 0 4px 6px -1px rgba(0.4, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
         }
 
         textarea:focus {
@@ -134,38 +136,101 @@
             color: var(--text-main);
         }
 
-        /* Estilos específicos para o texto formatado da IA */
         .result-content {
-            background-color: #f8fafc;
-            color: #0f172a;
-            padding: 20px;
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            padding: 24px;
             border-radius: 8px;
             border: 1px solid var(--border);
             font-size: 15px;
             line-height: 1.6;
         }
 
-        .result-content strong {
+        .result-content h3 {
+            font-size: 16px;
+            font-weight: 700;
             color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #eff6ff;
+            display: flex;
+            align-items: center;
         }
 
-        .result-content ul, .result-content ol {
-            margin-top: 10px;
-            margin-bottom: 20px;
-            padding-left: 20px;
-        }
-
-        .result-content li {
-            margin-bottom: 8px;
+        .result-content h3:first-child {
+            margin-top: 0;
         }
 
         .result-content p {
             margin-bottom: 16px;
+            color: #334155;
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-left: 4px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .result-content ul, .result-content ol {
+            margin-bottom: 20px;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .result-content li {
+            background-color: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            color: #334155;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .result-content ul li::before {
+            content: "•";
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .result-content ol {
+            counter-reset: step-counter;
+        }
+
+        .result-content ol li::before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            background-color: #dbeafe;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 12px;
+            min-width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1px;
+        }
+
+        .result-content h3:last-of-type + p {
+            background: #fff5f5;
+            border-left-color: #ef4444;
+            color: #991b1b;
         }
 
         .loading {
             color: var(--text-muted);
             font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
     </style>
 </head>
@@ -204,15 +269,10 @@
             const btnEnviar = document.getElementById("btnEnviar");
             const output = document.getElementById("resposta");
             const prompt = promptInput.value;
-
-            if (!prompt.trim()) {
-                alert("Por favor, descreva o problema antes de solicitar o diagnóstico.");
-                return;
-            }
             
             btnEnviar.disabled = true;
             btnEnviar.textContent = "Processando...";
-            output.innerHTML = "<span class='loading'>Analisando a infraestrutura e consultando a base de dados...</span>";
+            output.innerHTML = "<span class='loading'>Analisando a infraestrutura...</span>";
             
             try {
                 const response = await fetch("/api/llm", {
