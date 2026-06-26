@@ -35,7 +35,7 @@ Certifique-se de ter instalado em sua máquina:
 * Um gerenciador de pacotes (`npm` já vem com o Node)
 
 ### 2. Clonar o Repositório
-```bash
+bash
 git clone [https://github.com/SEU-USUARIO/5-Semestre-Proj-LLM.git](https://github.com/SEU-USUARIO/5-Semestre-Proj-LLM.git)
 cd 5-Semestre-Proj-LLM
 
@@ -51,3 +51,5 @@ npm run dev
 
 ### 6. Utilizando
 Descreve um problema que um técnico de redes poderia encontrar em atendimento: "Todos os pcs do almoxarifado estão perdendo pacotes, porém os pcs do financeiro não"
+
+
